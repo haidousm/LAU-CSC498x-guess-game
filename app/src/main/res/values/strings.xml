@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">guess-game</string>
+    <string name="todo">TODO</string>
+    <string name="button">Button</string>
 </resources>
