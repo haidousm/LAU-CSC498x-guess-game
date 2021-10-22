@@ -13,11 +13,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,17 +24,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+
 public class MainActivity extends AppCompatActivity {
-
-    private Map<String, String> titleImgMap;
-    private ArrayList<String> titles;
-    private ArrayList<String> imgUrls;
-
-    private int currentAppIndex = 0;
 
     private ImageView appIconImageView;
     private Button[] answerButtons;
 
+    private final int ROUND_TIME = 3000; // in milliseconds
+
+
+    private Map<String, String> titleImgMap;
+    private ArrayList<String> titles;
+
+    private int currentRound = 0;
+    private int currentScore = 0;
+
+    enum LEVEL {
+        EASY,
+        MEDIUM,
+        HARD
+    }
+
+    private LEVEL currentLevel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,57 +67,31 @@ public class MainActivity extends AppCompatActivity {
         DownloadListTask listDownloader = new DownloadListTask();
         listDownloader.execute(listSiteURL);
 
+        // TODO: get level from choose level view;
+        this.currentLevel = LEVEL.EASY; //mock level
+
+        if (this.currentLevel != LEVEL.EASY) {
+
+            // TODO: show score counter
+
+        }
+
+        if (this.currentLevel == LEVEL.HARD) {
+            // TODO: show round timer
+        }
+
     }
 
-    public void finishedLoadingData(Map<String, String> titleImgMap, ArrayList<String> titles, ArrayList<String> imgUrls) throws IOException {
+    private void finishedLoadingData(Map<String, String> titleImgMap, ArrayList<String> titles) {
 
         this.titleImgMap = titleImgMap;
         this.titles = titles;
-        this.imgUrls = imgUrls;
         Collections.shuffle(titles);
 
-        startLoadingNextApp();
+        prepareLoadingNextRound();
     }
 
-    public void startLoadingNextApp() {
-        String correctTitle = titles.get(currentAppIndex);
-        String imgUrl = titleImgMap.get(correctTitle);
-
-        new DownloadImageTask(appIconImageView).execute(imgUrl);
-    }
-
-    public void finishedLoadingNextApp() {
-
-        String correctTitle = this.titles.get(currentAppIndex);
-        Random random = new Random();
-        ArrayList<String> chosenTitles = new ArrayList<>(Arrays.asList(this.titles.get(random.nextInt(this.titles.size())),
-                this.titles.get(random.nextInt(this.titles.size())),
-                this.titles.get(random.nextInt(this.titles.size())), this.titles.get(currentAppIndex)));
-
-        Collections.shuffle(chosenTitles);
-
-        for (int i = 0; i < this.answerButtons.length; i++) {
-
-            String chosenTitle = chosenTitles.get(i);
-            answerButtons[i].setText(chosenTitle);
-            answerButtons[i].setTag(chosenTitle.equals(correctTitle) ? 1 : 0);
-        }
-        currentAppIndex++;
-        currentAppIndex %= titles.size();
-
-    }
-
-    public void answerClicked(View v) {
-
-        Button clickedButton = (Button) v;
-        if ((Integer) clickedButton.getTag() == 1) {
-
-            Log.i("Guess-Game", "Correct!");
-        } else {
-
-            Log.i("Guess-Game", "Incorrect!");
-
-        }
+    private void prepareLoadingNextRound() {
 
         new CountDownTimer(1000, 100) {
 
@@ -119,11 +102,90 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                startLoadingNextApp();
+                startLoadingNextRound();
+
             }
         }.start();
 
     }
+
+    private void startLoadingNextRound() {
+        String correctTitle = titles.get(currentRound);
+        String imgUrl = titleImgMap.get(correctTitle);
+
+        new DownloadImageTask(appIconImageView).execute(imgUrl);
+    }
+
+    private void finishedLoadingNextRound() {
+
+        String correctTitle = this.titles.get(currentRound);
+        Random random = new Random();
+        ArrayList<String> chosenTitles = new ArrayList<>(Arrays.asList(this.titles.get(random.nextInt(this.titles.size())),
+                this.titles.get(random.nextInt(this.titles.size())),
+                this.titles.get(random.nextInt(this.titles.size())), this.titles.get(currentRound)));
+
+        Collections.shuffle(chosenTitles);
+
+        for (int i = 0; i < this.answerButtons.length; i++) {
+
+            String chosenTitle = chosenTitles.get(i);
+            answerButtons[i].setText(chosenTitle);
+            answerButtons[i].setTag(chosenTitle.equals(correctTitle) ? 1 : 0);
+        }
+        currentRound++;
+        currentRound %= titles.size();
+
+        if (this.currentLevel == LEVEL.HARD) {
+            startRoundTimer();
+        }
+
+    }
+
+    private void startRoundTimer() {
+        new CountDownTimer(this.ROUND_TIME, 100) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                //TODO: update timer text view
+            }
+
+            @Override
+            public void onFinish() {
+
+                wrongAnswer();
+                prepareLoadingNextRound();
+
+            }
+        }.start();
+    }
+
+    private void correctAnswer() {
+        //TODO: play correct answer sound fx
+        this.currentScore += 2;
+
+    }
+
+    private void wrongAnswer() {
+        //TODO: play incorrect answer sound fx
+        this.currentScore -= 1;
+    }
+
+    public void answerClicked(View v) {
+
+        Button clickedButton = (Button) v;
+        if ((Integer) clickedButton.getTag() == 1) {
+
+            correctAnswer();
+
+        } else {
+
+            wrongAnswer();
+
+        }
+        prepareLoadingNextRound();
+
+    }
+
 
     public class DownloadListTask extends AsyncTask<String, Void, String> {
         protected String doInBackground(String... urls) {
@@ -164,7 +226,6 @@ public class MainActivity extends AppCompatActivity {
                 Map<String, String> titleImgMap = new HashMap<>();
 
                 ArrayList<String> titles = new ArrayList<>();
-                ArrayList<String> imgUrls = new ArrayList<>();
 
                 for (int i = 1; i < cardDivs.length; i++) {
 
@@ -185,11 +246,10 @@ public class MainActivity extends AppCompatActivity {
                     titleImgMap.put(titleUrl, imageUrl);
 
                     titles.add(titleUrl);
-                    imgUrls.add(imageUrl);
 
                 }
 
-                MainActivity.this.finishedLoadingData(titleImgMap, titles, imgUrls);
+                MainActivity.this.finishedLoadingData(titleImgMap, titles);
 
 
             } catch (Exception e) {
@@ -221,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(Bitmap result) {
             bmImage.setImageBitmap(result);
-            MainActivity.this.finishedLoadingNextApp();
+            MainActivity.this.finishedLoadingNextRound();
         }
     }
 }
