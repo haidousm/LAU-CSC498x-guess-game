@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView roundTimerView;
 
 
-    private final int ROUND_TIME = 3000; // in milliseconds
+    private final int ROUND_TIME = 4000; // in milliseconds
 
 
     private Map<String, String> titleImgMap;
@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private LEVEL currentLevel;
 
     private MediaPlayer mediaPlayer;
+
+    private CountDownTimer roundTimer;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -96,6 +98,22 @@ public class MainActivity extends AppCompatActivity {
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 100, 0);
+
+        this.roundTimer = new CountDownTimer(this.ROUND_TIME, 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                roundTimerView.setText(String.valueOf(millisUntilFinished / 1000));
+            }
+
+            @Override
+            public void onFinish() {
+
+                wrongAnswer();
+                prepareLoadingNextRound();
+
+            }
+        };
 
     }
 
@@ -159,21 +177,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startRoundTimer() {
-        new CountDownTimer(this.ROUND_TIME, 100) {
+        this.roundTimer.start();
+    }
 
-            @Override
-            public void onTick(long millisUntilFinished) {
-                //TODO: update timer text view
-            }
-
-            @Override
-            public void onFinish() {
-
-                wrongAnswer();
-                prepareLoadingNextRound();
-
-            }
-        }.start();
+    private void stopRoundTimer() {
+        this.roundTimer.cancel();
     }
 
     private void correctAnswer() {
@@ -198,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void answerClicked(View v) {
 
+        stopRoundTimer();
         Button clickedButton = (Button) v;
         if ((Integer) clickedButton.getTag() == 1) {
 
