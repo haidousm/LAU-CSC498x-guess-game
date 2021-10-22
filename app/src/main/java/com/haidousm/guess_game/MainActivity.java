@@ -1,10 +1,15 @@
 package com.haidousm.guess_game;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -47,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
     private LEVEL currentLevel;
 
+    private MediaPlayer mediaPlayer;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
             // TODO: show round timer
         }
 
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 100, 0);
+
     }
 
     private void finishedLoadingData(Map<String, String> titleImgMap, ArrayList<String> titles) {
@@ -93,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void prepareLoadingNextRound() {
 
-        new CountDownTimer(1000, 100) {
+        new CountDownTimer(500, 100) {
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -160,14 +171,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void correctAnswer() {
-        //TODO: play correct answer sound fx
         this.currentScore += 2;
+        playSoundFX(R.raw.correct_answer);
 
     }
 
     private void wrongAnswer() {
-        //TODO: play incorrect answer sound fx
         this.currentScore -= 1;
+        playSoundFX(R.raw.wrong_answer);
+
+    }
+
+    private void playSoundFX(int resourceID) {
+        if (mediaPlayer != null) mediaPlayer.release();
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), resourceID);
+        mediaPlayer.start();
     }
 
     public void answerClicked(View v) {
