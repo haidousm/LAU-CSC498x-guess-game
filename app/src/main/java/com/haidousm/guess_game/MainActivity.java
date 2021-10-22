@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
             answerButtons[i].setTag(chosenTitle.equals(correctTitle) ? 1 : 0);
         }
         currentAppIndex++;
+        currentAppIndex %= titles.size();
 
     }
 
