@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -34,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView appIconImageView;
     private Button[] answerButtons;
+
+    private TextView scoreCounterView;
+    private TextView roundTimerView;
+
 
     private final int ROUND_TIME = 3000; // in milliseconds
 
@@ -60,8 +65,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.appIconImageView = findViewById(R.id.appIconImageView);
 
+        String listSiteURL = "https://www.pcmag.com/picks/best-android-apps";
+        DownloadListTask listDownloader = new DownloadListTask();
+        listDownloader.execute(listSiteURL);
+
+        this.appIconImageView = findViewById(R.id.appIconImageView);
 
         this.answerButtons = new Button[]{
                 findViewById(R.id.answerAButton),
@@ -69,23 +78,20 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.answerCButton),
                 findViewById(R.id.answerDButton)};
 
-
-        String listSiteURL = "https://www.pcmag.com/picks/best-android-apps";
-
-        DownloadListTask listDownloader = new DownloadListTask();
-        listDownloader.execute(listSiteURL);
+        this.scoreCounterView = findViewById(R.id.scoreCounter);
+        this.roundTimerView = findViewById(R.id.roundTimer);
 
         // TODO: get level from choose level view;
-        this.currentLevel = LEVEL.EASY; //mock level
+        this.currentLevel = LEVEL.EASY;
 
         if (this.currentLevel != LEVEL.EASY) {
 
-            // TODO: show score counter
+            this.scoreCounterView.setVisibility(View.VISIBLE);
 
         }
 
         if (this.currentLevel == LEVEL.HARD) {
-            // TODO: show round timer
+            this.roundTimerView.setVisibility(View.VISIBLE);
         }
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -171,14 +177,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void correctAnswer() {
-        this.currentScore += 2;
         playSoundFX(R.raw.correct_answer);
+        this.currentScore += 2;
+        this.scoreCounterView.setText(String.valueOf(this.currentScore));
 
     }
 
     private void wrongAnswer() {
-        this.currentScore -= 1;
         playSoundFX(R.raw.wrong_answer);
+        this.currentScore -= 1;
+        this.scoreCounterView.setText(String.valueOf(this.currentScore));
 
     }
 
