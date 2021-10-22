@@ -32,6 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:onClick="answerClicked"
             android:text="@string/button"
             android:textSize="14sp"
             app:layout_columnWeight="1"
@@ -42,6 +43,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:onClick="answerClicked"
+
             android:text="@string/button"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -51,6 +54,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:onClick="answerClicked"
+
             android:text="@string/button"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />
@@ -60,6 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
+            android:onClick="answerClicked"
             android:text="@string/button"
             app:layout_columnWeight="1"
             app:layout_rowWeight="1" />

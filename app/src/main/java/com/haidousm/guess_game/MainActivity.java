@@ -6,7 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -18,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +34,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int currentAppIndex = 0;
 
-    private DownloadImageTask downloadImageTask;
-
     private ImageView appIconImageView;
-    private Button answerAButton;
-    private Button answerBButton;
-    private Button answerCButton;
-    private Button answerDButton;
+    private Button[] answerButtons;
 
 
     @Override
@@ -46,12 +44,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         this.appIconImageView = findViewById(R.id.appIconImageView);
-        this.answerAButton = findViewById(R.id.answerAButton);
-        this.answerBButton = findViewById(R.id.answerBButton);
-        this.answerCButton = findViewById(R.id.answerCButton);
-        this.answerDButton = findViewById(R.id.answerDButton);
 
-        this.downloadImageTask = new DownloadImageTask(appIconImageView);
+
+        this.answerButtons = new Button[]{
+                findViewById(R.id.answerAButton),
+                findViewById(R.id.answerBButton),
+                findViewById(R.id.answerCButton),
+                findViewById(R.id.answerDButton)};
+
 
         String listSiteURL = "https://www.pcmag.com/picks/best-android-apps";
 
@@ -73,24 +73,54 @@ public class MainActivity extends AppCompatActivity {
     public void startLoadingNextApp() {
         String correctTitle = titles.get(currentAppIndex);
         String imgUrl = titleImgMap.get(correctTitle);
-        this.downloadImageTask.execute(imgUrl);
+
+        new DownloadImageTask(appIconImageView).execute(imgUrl);
     }
 
     public void finishedLoadingNextApp() {
 
+        String correctTitle = this.titles.get(currentAppIndex);
         Random random = new Random();
-        String[] chosenTitles = new String[]{
-                this.titles.get(currentAppIndex),
+        ArrayList<String> chosenTitles = new ArrayList<>(Arrays.asList(this.titles.get(random.nextInt(this.titles.size())),
                 this.titles.get(random.nextInt(this.titles.size())),
-                this.titles.get(random.nextInt(this.titles.size())),
-                this.titles.get(random.nextInt(this.titles.size()))};
+                this.titles.get(random.nextInt(this.titles.size())), this.titles.get(currentAppIndex)));
 
-        this.answerAButton.setText(chosenTitles[0]);
-        this.answerBButton.setText(chosenTitles[1]);
-        this.answerCButton.setText(chosenTitles[2]);
-        this.answerDButton.setText(chosenTitles[3]);
+        Collections.shuffle(chosenTitles);
 
+        for (int i = 0; i < this.answerButtons.length; i++) {
+
+            String chosenTitle = chosenTitles.get(i);
+            answerButtons[i].setText(chosenTitle);
+            answerButtons[i].setTag(chosenTitle.equals(correctTitle) ? 1 : 0);
+        }
         currentAppIndex++;
+
+    }
+
+    public void answerClicked(View v) {
+
+        Button clickedButton = (Button) v;
+        if ((Integer) clickedButton.getTag() == 1) {
+
+            Log.i("Guess-Game", "Correct!");
+        } else {
+
+            Log.i("Guess-Game", "Incorrect!");
+
+        }
+
+        new CountDownTimer(1000, 100) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                startLoadingNextApp();
+            }
+        }.start();
 
     }
 
