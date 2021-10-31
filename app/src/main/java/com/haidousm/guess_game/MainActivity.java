@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
         String listSiteURL = "https://www.pcmag.com/picks/best-android-apps";
         DownloadListTask listDownloader = new DownloadListTask();
         listDownloader.execute(listSiteURL);
@@ -84,7 +85,15 @@ public class MainActivity extends AppCompatActivity {
         this.roundTimerView = findViewById(R.id.roundTimer);
 
         // TODO: get level from choose level view;
+        Bundle extras = getIntent().getExtras();
+        String gameMode = extras.getString("ModeString");
+
+        if(gameMode.equalsIgnoreCase("Easy"))
         this.currentLevel = LEVEL.EASY;
+        if(gameMode.equalsIgnoreCase("Medium"))
+            this.currentLevel = LEVEL.MEDIUM;
+        if(gameMode.equalsIgnoreCase("Hard"))
+            this.currentLevel = LEVEL.HARD;
 
         if (this.currentLevel != LEVEL.EASY) {
 
@@ -318,5 +327,9 @@ public class MainActivity extends AppCompatActivity {
             bmImage.setImageBitmap(result);
             MainActivity.this.finishedLoadingNextRound();
         }
+        public void btnClicked(View view){
+
+        }
     }
+
 }
