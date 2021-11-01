@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/f1e1db5a76971858f70829f862d69f88"
-    tools:context=".MainActivity3">
+    tools:context=".ChooseDifficultyActivity">
 
     <Button
         android:id="@+id/button"
         android:layout_width="119dp"
         android:layout_height="59dp"
         android:background="@drawable/easy"
+        android:onClick="easyLevel"
         android:text="easy"
         android:textSize="1sp"
-        android:onClick="easyMode"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -27,9 +27,9 @@
         android:layout_width="111dp"
         android:layout_height="41dp"
         android:background="@drawable/medium"
+        android:onClick="mediumLevel"
         android:text="medium"
         android:textSize="1sp"
-        android:onClick="mediumMode"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
         android:layout_width="111dp"
         android:layout_height="41dp"
         android:background="@drawable/hard"
-        android:onClick="hardMode"
+        android:onClick="hardLevel"
         android:text="hard"
         android:textSize="1sp"
         app:layout_constraintBottom_toBottomOf="parent"
