@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private int currentRound = 0;
     private int currentScore = 0;
 
-    enum LEVEL {
+    public enum LEVEL {
         EASY,
         MEDIUM,
         HARD
@@ -83,13 +83,11 @@ public class MainActivity extends AppCompatActivity {
         this.scoreCounterView = findViewById(R.id.scoreCounter);
         this.roundTimerView = findViewById(R.id.roundTimer);
 
-        // TODO: get level from choose level view;
-        this.currentLevel = LEVEL.EASY;
+        Bundle extras = getIntent().getExtras();
+        this.currentLevel = (LEVEL) extras.get("LEVEL");
 
         if (this.currentLevel != LEVEL.EASY) {
-
             this.scoreCounterView.setVisibility(View.VISIBLE);
-
         }
 
         if (this.currentLevel == LEVEL.HARD) {
@@ -319,4 +317,5 @@ public class MainActivity extends AppCompatActivity {
             MainActivity.this.finishedLoadingNextRound();
         }
     }
+
 }
